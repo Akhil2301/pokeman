@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
-
+import React, { useState, useEffect } from "react";
+import PokiemonList from "./PokiemonList";
+import Pagination from "./Pagination";
+import axios from "axios";
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const [pokeimon, setPokiemon] = useState([]);
+  const [currentPageUrl, setCurrentPageUrl] = useState(
+    "https://pokeapi.co/api/v2/pokemon"
   );
+  const [nextPageUrl, setNextPageUrl] = useState();
+  const [prevPageUrl, setPrevPageUrl] = useState();
+
+  useEffect(() => {
+    axios.get(currentPageUrl).then((res) => {
+      setNextPageUrl(res.data.next);
+      setPrevPageUrl(res.data.previous);
+      setPokiemon(res.data.results.map((p) => p.name));
+    });
+  }, [currentPageUrl]);
+
+  function gotoNextPAge() {
+    setCurrentPageUrl(nextPageUrl);
+  }
+  function gotoPrevPAge() {
+    setCurrentPageUrl(prevPageUrl);
+  }
+  return (
+    <>
+      <PokiemonList pokeimon={pokeimon} />
+      <Pagination
+       gotoNextPage={nextPageUrl? gotoNextPAge:null} 
+       gotoPrevPage={prevPageUrl? gotoPrevPAge:null} />
+    </>
+  )
 }
 
 export default App;
